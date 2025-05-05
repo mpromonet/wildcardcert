@@ -1,25 +1,10 @@
 
 services:
-  genca:
-    image: alpine/openssl:latest
-    volumes:
-      - ./certs:/certs
-    command: "req -x509 -newkey rsa:2048 -nodes -keyout /certs/ca.key -out /certs/ca.crt -days 365 -subj '/CN=MyCustomCA'"
-
-  gencsr:
-    image: alpine/openssl:latest
-    volumes:
-      - ./certs:/certs
-    command: "req -new -newkey rsa:2048 --nodes -keyout /certs/server.key -out /certs/server.csr --config /certs/openssl.cnf"
-
   gencerts:
     image: alpine/openssl:latest
-    depends_on:
-      - genca
-      - gencsr
     volumes:
       - ./certs:/certs
-    command: "x509 -in /certs/server.csr -req -CA /certs/ca.crt -CAkey /certs/ca.key -CAcreateserial -out /certs/server.crt -extensions req_ext -extfile /certs/openssl.cnf"
+    command: "req -new -x509 -nodes -keyout /certs/server.key -out /certs/server.crt --config /certs/openssl.cnf"
     
   webserver:
     image: nginx:latest
@@ -31,10 +16,3 @@ services:
       - ./nginx/:/etc/nginx/conf.d/:ro
       - ./certs/:/etc/nginx/ssl/:ro
 
-  test:
-    image: alpine/curl:latest
-    network_mode: host
-    volumes:
-      - ./certs:/certs
-    entrypoint: sh 
-    command: -c "cat /certs/ca.crt >> /etc/ssl/certs/ca-certificates.crt && curl https://toto.dev.localhost/ -v"

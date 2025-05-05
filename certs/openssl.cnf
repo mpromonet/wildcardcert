@@ -11,9 +11,5 @@ distinguished_name=dn
 CN=*.dev.localhost
 
 [req_ext]
-subjectAltName=@alt_names
+subjectAltName=DNS:dev.localhost,DNS:.dev.localhost,DNS:*.dev.localhost
 
-[alt_names]
-DNS.1=dev.localhost
-DNS.2=.dev.localhost
-DNS.3=*.dev.localhost
